@@ -1,0 +1,7 @@
+db.sqlite3
+__init__.py
+geckodriver.log
+__pycache__
+*.pyc
+.idea
+.pyc
