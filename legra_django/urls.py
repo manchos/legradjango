@@ -15,11 +15,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path, include
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('design/', include('design_category.urls')),
+    path('design/', include('design_products.urls')),
 ]
 
-url(r'^(?P<pk>\d+)/$', GoodsListView.as_view(), name="goods_index"),
-url(r'^(?P<pk>\d+)/detail/$', GoodDetailView.as_view(), name="goods_detail"),
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# url(r'^(?P<pk>\d+)/$', GoodsListView.as_view(), name="goods_index"),
+# url(r'^(?P<pk>\d+)/detail/$', GoodDetailView.as_view(), name="goods_detail"),

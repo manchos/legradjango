@@ -1,8 +1,11 @@
 from django.db import models
+from pytils.translit import slugify
+
 
 from django.db import models
 # from django.contrib.comments.moderation import CommentModerator, moderator
 from django.urls import reverse
+from autoslug import AutoSlugField
 
 
 # Create your models here.
@@ -22,19 +25,15 @@ class DesignCategory(models.Model):
 
 
 class DesignProduct(models.Model):
-    name = models.CharField(max_length=50, unique=True, db_index=True, verbose_name="Название")
-    category = models.ForeignKey(DesignCategory, verbose_name="Категория")
+    name = models.CharField(max_length=150, unique=True, db_index=True, verbose_name="Название")
+    slug = AutoSlugField(populate_from='name', unique=True, db_index=True) #models.SlugField()
+    category = models.ForeignKey(DesignCategory, verbose_name="Категория", on_delete=models.SET_NULL, null=True)
     description = models.TextField(verbose_name="Краткое описание")
     content = models.TextField(verbose_name="Полное описание")
-    price = models.FloatField(db_index=True, verbose_name="Цена, руб.")
-    price_acc = models.FloatField(null=True, blank=True, verbose_name="Цена с учетом скидки, руб.")
-    in_stock = models.BooleanField(default=True, db_index=True, verbose_name="Есть в наличии")
-    featured = models.BooleanField(default=False, db_index=True, verbose_name="Рекомендуемый")
-    image = models.ImageField(upload_to="goods/list", verbose_name="Основное изображение")
-
-    image = models.ImageField(upload_to="goods/list", verbose_name="Основное изображение")
+    image = models.ImageField(upload_to="design_products/main", verbose_name="Основное изображение")
 
     def save(self, *args, **kwargs):
+        # self.slug = slugify(self.name)
         try:
             this_record = DesignProduct.objects.get(pk=self.pk)
             if this_record.image != self.image:
@@ -56,8 +55,10 @@ class DesignProduct(models.Model):
 
 
 class DesignProductImage(models.Model):
-    design_product = models.ForeignKey(Good)
-    image = models.ImageField(upload_to="goods/detail", verbose_name="Дополнительное изображение")
+    design_product = models.ForeignKey(DesignProduct, verbose_name="Дизайн-продукт", on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="design_products/detail", verbose_name="Дополнительное изображение")
+    description = models.TextField(verbose_name="Краткое описание")
+    thumbnail = models.ImageField(upload_to="design_products/thumbnails", verbose_name="Дополнительное изображение")
 
     def save(self, *args, **kwargs):
         try:
